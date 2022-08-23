@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xz.filter.dao.RegularMapper">
+    <!--<cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>-->
+    <resultMap id="RegularResult" type="com.xz.filter.pojo.Regular">
+        <result column="regularID" jdbcType="INTEGER" property="regularID"/>
+        <result column="regularName" jdbcType="VARCHAR" property="regularName"/>
+        <result property="paragraph" column="paragraph" jdbcType="VARCHAR"/>
+        <result property="charset" column="charset" jdbcType="VARCHAR"/>
+        <result property="warnKeyword" column="warnKeyword" jdbcType="VARCHAR"/>
+        <result property="expression" column="expression"   typeHandler="com.xz.mybatis.JsonElementTypeHandler"/>
+        <!-- <result property="regex" column="regex" jdbcType="OTHER"   typeHandler="com.xz.mybatis.JsonElementTypeHandler"/>
+         <result property="publisher" column="publisher" jdbcType="VARCHAR"/>
+         <result property="publishTime" column="publishTime" jdbcType="VARCHAR"/>
+         <result property="publishTimeFormat" column="publishTimeFormat" jdbcType="VARCHAR"/>
+         <result property="qq" column="qq" jdbcType="VARCHAR"/>
+         <result property="wx" column="wx" jdbcType="VARCHAR"/>
+         <result property="email" column="email" jdbcType="VARCHAR"/>
+         <result property="tiktop" column="tiktop" jdbcType="VARCHAR"/>
+         <result property="phone" column="phone" jdbcType="VARCHAR"/>
+         <result property="telegram" column="telegram" jdbcType="VARCHAR"/>
+         <result property="twitter" column="twitter" jdbcType="VARCHAR"/>
+         <result property="facebook" column="facebook" jdbcType="VARCHAR"/>
+         <result property="skype" column="skype" jdbcType="VARCHAR"/>-->
+        <result property="insertTime" column="insertTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="selectRegular" parameterType="java.util.Map" resultMap="RegularResult">
+        SELECT regularID,regularName,paragraph,charset, warnKeyword, settingTime,expression FROM regular
+        <where>
+            <if test="param.regularID!=null">AND regularID = #{param.regularID:INTEGER}</if>
+        </where>
+        ORDER BY regularID desc
+    </select>
+    <select id="getRegular" parameterType="int" resultMap="RegularResult">
+        SELECT regularID, regularName, paragraph, charset, settingTime,expression
+        FROM regular
+        WHERE regularID = #{regularID:INTEGER}
+    </select>
+    <select id="selectRegularCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(regularID)
+        FROM regular
+    </select>
+    <update id="updateRegular" flushCache="true">
+        update regular
+        <set>
+            settingTime=now(),
+            <if test="pojo.regularName != null">regularName = #{pojo.regularName:INTEGER},</if>
+            <if test="pojo.paragraph != null">paragraph = #{pojo.paragraph:VARCHAR},</if>
+            <if test="pojo.warnKeyword != null">warnKeyword = #{pojo.warnKeyword:VARCHAR},</if>
+            <if test="pojo.expression != null">expression = #{pojo.expression:OTHER},</if>
+            <if test="pojo.charset != null">charset = #{pojo.charset:VARCHAR},</if>
+        </set>
+        where regularID = #{pojo.regularID:VARCHAR}
+    </update>
+    <insert id="insertRegular" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.regularID">
+        INSERT INTO regular (regularName, paragraph, charset, warnKeyword)
+        VALUES (#{pojo.regularName:VARCHAR}, #{pojo.paragraph:VARCHAR}, #{pojo.charset:VARCHAR}, #{pojo.warnKeyword:VARCHAR})
+    </insert>
+    <delete id="deleteRegular" parameterType="int">
+        DELETE
+        FROM regular
+        WHERE regularID = #{regularID:INTEGER}
+    </delete>
+
+</mapper>

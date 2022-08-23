@@ -1,0 +1,17 @@
+
+<%--<script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>--%>
+<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.js"></script>
+<%--<script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>--%>
+<script src="https://cdn.bootcdn.net/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.22.1/moment.min.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
+<!-- page specific plugin scripts --><%--
+<script src="../components/jquery-ui/jquery-ui.js"></script>
+<script src="https://cdn.bootcss.com/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>--%>
+
+<%--<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>--%>
+<link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker3.css" rel="stylesheet">
+<%--<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>--%>
+<link href="https://cdn.bootcdn.net/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css" rel="stylesheet">
+<link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>

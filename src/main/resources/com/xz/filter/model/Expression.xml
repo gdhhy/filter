@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xz.filter.dao.ExpressionMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="ExpressionResult" type="com.xz.filter.pojo.Expression">
+        <result column="expressionID" jdbcType="INTEGER" property="expressionID"/>
+        <result column="expressionName" jdbcType="VARCHAR" property="expressionName"/>
+        <result column="capturingName" jdbcType="VARCHAR" property="capturingName"/>
+        <result column="exp" jdbcType="VARCHAR" property="exp"/>
+        <result column="orderID" jdbcType="INTEGER" property="orderID"/>
+    </resultMap>
+    <select id="selectExpression" parameterType="java.util.Map" resultMap="ExpressionResult">
+        SELECT expressionID,expressionName,capturingName,exp,orderID FROM expression
+        <where>
+            <if test="param.expressionID>0">AND expressionID = #{param.expressionID:INTEGER}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.expressionIDs)">
+                <foreach separator="," item="item" index="index" open=" AND expressionID in (" close=")" collection="param.expressionIDs">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY capturingName,orderID
+    </select>
+    <update id="updateExpression" flushCache="true">
+        update expression
+        <set>
+            <if test="pojo.expressionName != null">expressionName = #{pojo.expressionName:VARCHAR},</if>
+            <if test="pojo.capturingName != null">capturingName = #{pojo.capturingName:VARCHAR},</if>
+            <if test="pojo.exp != null">exp = #{pojo.exp:VARCHAR},</if>
+            <if test="pojo.orderID != null">orderID = #{pojo.orderID:INTEGER},</if>
+        </set>
+        where expressionID = #{pojo.expressionID:INTEGER}
+    </update>
+    <insert id="insertExpression" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.expressionID">
+        INSERT INTO expression (expressionName, capturingName, exp, orderID)
+        VALUES (#{pojo.expressionName:VARCHAR}, #{pojo.capturingName:VARCHAR}, #{pojo.exp:VARCHAR}, #{pojo.orderID:INTEGER})
+    </insert>
+    <delete id="deleteExpression" parameterType="int">
+        DELETE
+        FROM expression
+        WHERE expressionID = #{expressionID:INTEGER}
+    </delete>
+
+
+</mapper>

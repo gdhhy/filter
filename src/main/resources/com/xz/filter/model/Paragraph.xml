@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xz.filter.dao.ParagraphMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="ParagraphResult" type="com.xz.filter.pojo.Paragraph">
+        <result column="paragraphID" jdbcType="INTEGER" property="paragraphID"/>
+        <result column="sourceID" jdbcType="INTEGER" property="sourceID"/>
+        <result column="htmlID" jdbcType="INTEGER" property="htmlID"/>
+        <result column="body" jdbcType="VARCHAR" property="body"/>
+        <result column="publisher" jdbcType="VARCHAR" property="publisher"/>
+        <result column="publishTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="publishTime"/>
+        <result property="link" column="link" jdbcType="OTHER" typeHandler="com.xz.mybatis.JsonElementTypeHandler"/>
+
+        <result property="bodyCheckCode" column="bodyCheckCode" jdbcType="VARCHAR"/>
+        <result property="insertTime" column="insertTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+        <result property="warnLevel" column="warnLevel" jdbcType="INTEGER"/>
+        <result property="repeatCount" column="repeatCount" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="param.uploadUser!=null">AND uploadUser = #{param.uploadUser:VARCHAR}</if>
+            <if test="param.sourceID>0">AND P.sourceID = #{param.sourceID:INTEGER}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.source)">AND S.source = #{param.source:VARCHAR}</if>
+            <if test="param.htmlID>0">AND P.htmlID = #{param.htmlID:INTEGER}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.search)">AND body LIKE '%${param.search}%'</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.bodyCheckCode)">AND bodyCheckCode = #{param.bodyCheckCode:VARCHAR}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.publishTime1)">AND publishTime >= #{param.publishTime1:DATE}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.publishTime2)">AND publishTime &lt; #{param.publishTime2:DATE}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.queryItem)">AND link->'$."${param.queryItem}"'=#{param.queryField:VARCHAR}</if>
+        </where>
+    </sql>
+    <select id="selectParagraphForIndex" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT paragraphID id, P.sourceID sourceID_i, P.htmlID htmlID_n,body body_cn,publisher publisher_cn, publishTime publishTime_dt,S.source source_cn,
+        link link_cn, insertTime insertTime_dt, warnLevel warnLevel_n,repeatCount repeatCount_i
+        FROM paragraph P
+        left join source S on P.sourceID=S.sourceID
+        <include refid="queryWhere"/>
+        ORDER BY paragraphID desc
+        <choose>
+            <when test="param.start>0 and param.limit >0">
+                limit #{param.start:INTEGER},#{param.limit:INTEGER}
+            </when>
+            <when test="param.limit >0">
+                limit #{param.limit:INTEGER}
+            </when>
+            <otherwise>
+                limit 10000
+            </otherwise>
+        </choose>
+    </select>
+    <select id="selectParagraph" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT paragraphID,P.sourceID,P.htmlID,body,publisher,publishTime,S.source,insertTime,warnLevel,repeatCount,H.filename,link
+        FROM paragraph P
+        left join source S on P.sourceID=S.sourceID
+        left join html H on P.htmlID=H.htmlID
+        <include refid="queryWhere"/>
+        ORDER BY paragraphID desc
+        <choose>
+            <when test="param.start>0 and param.limit >0">
+                limit #{param.start:INTEGER},#{param.limit:INTEGER}
+            </when>
+            <when test="param.limit >0">
+                limit #{param.limit:INTEGER}
+            </when>
+            <otherwise>
+                limit 1000
+            </otherwise>
+        </choose>
+    </select>
+    <select id="selectParagraphCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(paragraphID) FROM paragraph P left join source S on P.sourceID=S.sourceID
+        <include refid="queryWhere"/>
+    </select>
+    <!--<select id="getParagraphByCheckCode" parameterType="java.util.Map" resultMap="ParagraphResult">
+        SELECT paragraphID, sourceID, htmlID, body, publisher, publishTime, insertTime, warnLevel, repeatCount, link
+        FROM paragraph p
+        WHERE bodyCheckCode = #{pojo.bodyCheckCode:VARCHAR} and htmlID = #{pojo.htmlID:INTEGER}
+    </select>-->
+    <delete id="deleteRepeatParagraph" flushCache="true"  parameterType="int">
+        DELETE
+        FROM paragraph
+        WHERE htmlID = #{htmlID:INTEGER} and
+              paragraphID not in (select id from (select max(paragraphID) id from paragraph group by bodyCheckCode, htmlID) as t)
+    </delete>
+    <!--<update id="repeatParagraph" flushCache="true">
+        update paragraph
+        <set>
+            <if test="pojo.repeatCount != null">repeatCount = repeatCount+1,</if>
+            <if test="pojo.publishTime != null">publishTime = #{pojo.publishTime:DATE},</if>
+            <if test="pojo.link != null">link = #{pojo.link:OTHER},</if>
+        </set>
+        where paragraphID = #{pojo.paragraphID:INTEGER}
+    </update>-->
+    <update id="calcRepeatParagraph" flushCache="true" parameterType="int">
+        update paragraph A join (
+            select bodyCheckCode, htmlID, count(htmlID) cnt
+            from paragraph
+            group by bodyCheckCode, htmlID) B
+        set repeatCount=B.cnt
+        where A.bodyCheckCode = B.bodyCheckCode
+          and A.htmlID = B.htmlID
+          and A.htmlID = #{htmlID:INTEGER}
+    </update>
+    <!--#{pojo.link:VARCHAR,typeHandler=com.xz.mybatis.JsonElementTypeHandler},-->
+    <insert id="insertParagraph" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.paragraphID">
+        INSERT INTO paragraph (sourceID, htmlID, body, publisher, publishTime, bodyCheckCode, warnLevel, repeatCount, link)
+        VALUES (#{pojo.sourceID:INTEGER}, #{pojo.htmlID:INTEGER}, #{pojo.body:VARCHAR}, #{pojo.publisher:VARCHAR}, #{pojo.publishTime:TIMESTAMP}, #{pojo.bodyCheckCode:VARCHAR},
+                #{pojo.warnLevel:INTEGER}, #{pojo.repeatCount:INTEGER}, #{pojo.link:OTHER})
+    </insert>
+    <delete id="deleteParagraphBySourceID" parameterType="int">
+        DELETE
+        FROM paragraph
+        WHERE sourceID = #{sourceID:INTEGER}
+    </delete>
+
+</mapper>

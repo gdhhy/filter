@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="cacheEnabled" value="true"/>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="aggressiveLazyLoading" value="true"/>
+    </settings>
+    <typeHandlers>
+        <typeHandler handler="com.xz.mybatis.JsonElementTypeHandler"/>
+    </typeHandlers>
+    <mappers>
+        <mapper resource="com/xz/filter/model/Source.xml"/>
+        <mapper resource="com/xz/filter/model/Html.xml"/>
+        <mapper resource="com/xz/filter/model/Paragraph.xml"/>
+        <mapper resource="com/xz/filter/model/Regular.xml"/>
+        <mapper resource="com/xz/filter/model/Expression.xml"/>
+    </mappers>
+</configuration>

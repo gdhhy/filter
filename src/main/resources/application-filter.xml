@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.1.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!-- 配置SOlrJ -->
+    <!--
+    在docker宿主机（群晖）上执行：
+    netstat -an | grep 3306
+    netstat -an | grep 8983
+    -->
+
+    <bean id="httpSolrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
+        <!--<constructor-arg index="0" value="http://172.17.0.3:8983/solr/filter"/>-->
+        <constructor-arg index="0" value="http://192.168.6.100:58983/solr/filter"/>
+    </bean>
+    <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <!--<property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>-->
+        <property name="url" value="jdbc:mysql://192.168.6.100:3307/filter?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=GMT%2B8"/>
+        <!--<property name="url" value="jdbc:mysql://172.17.0.2:3306/filter?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=GMT%2B8"/>-->
+        <property name="password" value="Huang3102,"/>
+        <property name="username" value="root"/>
+        <property name="validationQuery" value="select 1"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="maxIdle" value="50"/>
+        <property name="initialSize" value="2"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+
+
+    <bean id="session2" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-security.xml"/>
+        <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+
+    <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="session2"/>
+        <property name="mapperInterface" value="com.xz.security.dao.UserMapper"/>
+    </bean>
+    <bean id="sourceMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.filter.dao.SourceMapper"/>
+    </bean>
+    <!--<bean id="paragraphMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.filter.dao.ParagraphMapper"/>
+    </bean>-->
+    <bean id="htmlMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.filter.dao.HtmlMapper"/>
+    </bean>
+    <bean id="expressionMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.filter.dao.ExpressionMapper"/>
+    </bean>
+    <bean id="regularMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.filter.dao.RegularMapper"/>
+    </bean>
+
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+    <tx:advice id="transactionManagerAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="do*" isolation="READ_COMMITTED" propagation="REQUIRED"
+                       rollback-for="java.lang.Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <bean id="dictService" class="com.xz.common.logic.DictServiceImpl">
+        <!--<constructor-arg ref="sqlSessionTemplate"/>-->
+    </bean>
+    <bean class="com.xz.pinyin.PinyinUtil">
+        <property name="dictServer" ref="dictService"/>
+    </bean>
+    <!-- <bean class="com.xzew.lucene.SearchAction">
+        <property name="indexPath" value="C:\xz\review\document\luceneindex"/>
+    </bean>-->
+
+    <context:annotation-config/>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="mappingJacksonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/html;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+    <!--  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 过时了
+          <property name="messageConverters">
+              <list>
+                  <ref bean="jsonHttpMessageConverter"/>
+              </list>
+          </property>
+      </bean>
+
+      <bean id="jsonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+          <property name="supportedMediaTypes">
+              <list>
+                  <value>application/json;charset=UTF-8</value>
+              </list>
+          </property>
+      </bean>-->
+
+    <bean id="dictMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.xz.common.dao.DictMapper"/>
+    </bean>
+
+    <bean id="configs" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:config.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+    <bean id="fileValidator" class="com.xz.upload.FileValidator"/>
+    <bean id="multiFileValidator" class="com.xz.upload.MultiFileValidator"/>
+    <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
+
+
+    <task:annotation-driven scheduler="myScheduler"/>
+    <task:scheduler id="myScheduler" pool-size="1"/>
+    <context:component-scan base-package="com.xz.filter.controller"/>
+</beans>

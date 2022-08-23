@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xz.filter.dao.BodyMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="HtmlResult" type="com.xz.filter.pojo.Body">
+        <result column="bodyID" jdbcType="INTEGER" property="bodyID"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="checkCode" jdbcType="VARCHAR" property="checkCode"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="param.htmlID>0">AND htmlID = #{param.htmlID:INTEGER}</if>
+            <if test="param.sourceID>0">AND sourceID = #{param.sourceID:INTEGER}</if>
+            <if test="param.checkCode!=null">AND checkCode = #{param.checkCode:VARCHAR}</if>
+        </where>
+    </sql>
+    <select id="selectHtml" parameterType="java.util.Map" resultMap="HtmlResult">
+        SELECT bodyID,content,checkCode FROM body
+        <include refid="queryWhere"/>
+        ORDER BY bodyID desc
+        <choose>
+            <when test="param.start>0 and param.limit >0">
+                limit #{param.start:INTEGER},#{param.limit:INTEGER}
+            </when>
+            <when test="param.limit >0">
+                limit #{param.limit:INTEGER}
+            </when>
+            <otherwise>
+                limit 1000
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getHtmlByCheckCode" parameterType="string" resultMap="HtmlResult">
+        SELECT htmlID,sourceID,filename,path,size,fragmentCount,parseStatus,checkCode FROM html
+        WHERE checkCode = #{checkCode:VARCHAR}
+    </select>
+    <!-- <select id="queryHtml" parameterType="java.util.Map" resultType="java.util.Map">
+         SELECT htmlID,sourceID,filename,path,size,fragmentCount,parseStatus,checkCode FROM html H
+           source S left join regular R on S.regularID=R.regularID
+         <include refid="queryWhere"/>
+         ORDER BY sourceID desc
+         <choose>
+             <when test="param.start>0 and param.limit >0">
+                 limit #{param.start:INTEGER},#{param.limit:INTEGER}
+             </when>
+             <when test="param.limit >0">
+                 limit #{param.limit:INTEGER}
+             </when>
+             <otherwise>
+                 limit 1000
+             </otherwise>
+         </choose>
+     </select>-->
+    <select id="selectHtmlCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(sourceID) FROM html
+        <include refid="queryWhere"/>
+    </select>
+    <update id="updateHtml" flushCache="true">
+        update html
+        <set>
+            <if test="pojo.parseStatus != null">parseStatus = #{pojo.parseStatus:INTEGER},</if>
+            <if test="pojo.fragmentCount != null">fragmentCount = #{pojo.fragmentCount:INTEGER},</if>
+            <if test="pojo.checkCode != null">checkCode = #{pojo.checkCode:VARCHAR},</if>
+        </set>
+        where htmlID = #{pojo.htmlID:VARCHAR}
+    </update>
+    <insert id="insertHtml" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.htmlID">
+        INSERT INTO html (sourceID, filename,   size, fragmentCount, parseStatus, checkCode)
+        VALUES (#{pojo.sourceID:INTEGER}, #{pojo.filename:VARCHAR},  #{pojo.size:INTEGER}, #{pojo.fragmentCount:INTEGER},
+                #{pojo.parseStatus:INTEGER}, #{pojo.checkCode:VARCHAR})
+    </insert>
+    <delete id="deleteHtml" parameterType="int">
+        DELETE
+        FROM html
+        WHERE sourceID = #{sourceID:INTEGER}
+    </delete>
+
+</mapper>

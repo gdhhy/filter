@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xz.filter.dao.SourceMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="SourceResult" type="com.xz.filter.pojo.Source">
+        <result column="sourceID" jdbcType="INTEGER" property="sourceID"/>
+        <result column="source" jdbcType="VARCHAR" property="source"/>
+        <result column="filename" jdbcType="VARCHAR" property="filename"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="size" jdbcType="INTEGER" property="size"/>
+        <result column="htmlCount" jdbcType="INTEGER" property="htmlCount"/>
+        <result property="uploadTime" column="uploadTime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP"/>
+        <result column="serverPath" jdbcType="VARCHAR" property="serverPath"/>
+        <result column="serverFilename" jdbcType="VARCHAR" property="serverFilename"/>
+        <result column="fragmentCount" jdbcType="INTEGER" property="fragmentCount"/>
+        <result column="parseStatus" jdbcType="INTEGER" property="parseStatus"/>
+        <result column="uploadUser" jdbcType="VARCHAR" property="uploadUser"/>
+        <result column="checkCode" jdbcType="VARCHAR" property="checkCode"/>
+        <result column="regularID" jdbcType="INTEGER" property="regularID"/>
+        <result column="parseTime" jdbcType="INTEGER" property="parseTime"/>
+        <result column="indexTime" jdbcType="INTEGER" property="indexTime"/>
+        <result column="errmsg" jdbcType="VARCHAR" property="errmsg"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="param.sourceID>0">AND sourceID = #{param.sourceID:INTEGER}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.uploadTime1)">AND uploadTime > #{param.uploadTime1:VARCHAR}</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(param.uploadTime2)">AND uploadTime &lt;= #{param.uploadTime2:VARCHAR}</if>
+            <if test="param.checkCode!=null">AND checkCode = #{param.checkCode:VARCHAR}</if>
+        </where>
+    </sql>
+    <select id="selectSource" parameterType="java.util.Map" resultMap="SourceResult">
+        SELECT sourceID,source,filename,path,size,htmlCount,uploadTime,serverPath,serverFilename,fragmentCount,parseStatus,uploadUser,checkCode,parseTime,indexTime,errmsg
+        FROM source
+        <include refid="queryWhere"/>
+        ORDER BY sourceID desc
+        <choose>
+            <when test="param.start>0 and param.limit >0">
+                limit #{param.start:INTEGER},#{param.limit:INTEGER}
+            </when>
+            <when test="param.limit >0">
+                limit #{param.limit:INTEGER}
+            </when>
+            <otherwise>
+                limit 1000
+            </otherwise>
+        </choose>
+    </select>
+    <select id="querySource" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT sourceID,source,filename,path,size,htmlCount,uploadTime,serverPath,serverFilename,fragmentCount,parseStatus,uploadUser,checkCode,parseTime,indexTime,errmsg,S.regularID,R.regularName
+        FROM source S left join regular R on S.regularID=R.regularID
+        <include refid="queryWhere"/>
+        ORDER BY sourceID desc
+        <choose>
+            <when test="param.start>0 and param.limit >0">
+                limit #{param.start:INTEGER},#{param.limit:INTEGER}
+            </when>
+            <when test="param.limit >0">
+                limit #{param.limit:INTEGER}
+            </when>
+            <otherwise>
+                limit 1000
+            </otherwise>
+        </choose>
+    </select>
+    <select id="selectSourceCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(sourceID) FROM source
+        <include refid="queryWhere"/>
+    </select>
+    <update id="updateSource" flushCache="true">
+        update source
+        <set>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.source)">source = #{pojo.source:VARCHAR},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.htmlCount)">htmlCount = #{pojo.htmlCount:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.fragmentCount)">fragmentCount = #{pojo.fragmentCount:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.parseStatus)">parseStatus = #{pojo.parseStatus:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.parseTime)">parseTime = #{pojo.parseTime:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.indexTime)">indexTime = #{pojo.indexTime:INTEGER},</if>
+            <if test="pojo.regularID >=0">regularID = #{pojo.regularID:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.errmsg)">errmsg = #{pojo.errmsg:VARCHAR},</if>
+        </set>
+        where sourceID = #{pojo.sourceID:INTEGER}
+    </update>
+    <!--todo fragmentCount 计算从html -->
+    <update id="refreshSource" flushCache="true">
+        update source
+        <set>
+            /* htmlCount = ifnull((select count(*) from html where sourceID =#{pojo.sourceID:INTEGER}),0),
+            fragmentCount = ifnull((select sum(fragmentCount) from html where sourceID =#{pojo.sourceID:INTEGER}),0),*/
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.htmlCount)">htmlCount = #{pojo.htmlCount:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.fragmentCount)">fragmentCount = #{pojo.fragmentCount:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.parseStatus)">parseStatus = #{pojo.parseStatus:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.parseTime)">parseTime = #{pojo.parseTime:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.indexTime)">indexTime = #{pojo.indexTime:INTEGER},</if>
+            <if test="pojo.regularID >=0">regularID = #{pojo.regularID:INTEGER},</if>
+            <if test="@com.xz.util.Ognl@isNotEmpty(pojo.errmsg)">errmsg = #{pojo.errmsg:VARCHAR},</if>
+        </set>
+        where sourceID = #{pojo.sourceID:INTEGER}
+    </update>
+    <!--<update id="updateSourceSource" flushCache="true">
+          update source
+          set source = #{pojo.source:VARCHAR}
+          where sourceID = #{pojo.sourceID:INTEGER}
+      </update>-->
+    <insert id="insertSource" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.sourceID">
+        INSERT INTO source (source, filename, path, size, htmlCount, uploadTime, serverPath, serverFilename, parseStatus, uploadUser, checkCode)
+        VALUES (#{pojo.source:VARCHAR}, #{pojo.filename:VARCHAR}, #{pojo.path:VARCHAR}, #{pojo.size:INTEGER}, #{pojo.htmlCount:INTEGER}, #{pojo.uploadTime:TIMESTAMP},
+                #{pojo.serverPath:VARCHAR}, #{pojo.serverFilename:VARCHAR}, #{pojo.parseStatus:INTEGER}, #{pojo.uploadUser:VARCHAR}, #{pojo.checkCode:VARCHAR})
+    </insert>
+    <delete id="deleteSource" parameterType="int">
+        DELETE
+        FROM source
+        WHERE sourceID = #{sourceID:INTEGER}
+    </delete>
+
+</mapper>
