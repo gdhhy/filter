@@ -180,8 +180,13 @@ public class SourceService implements Runnable {
             solrIndex();
             source.setIndexTime(System.currentTimeMillis() - startSecond);
             if (errMap.size() == 0) {
-                source.setParseStatus(1);
-                source.setErrmsg("");
+                if (fragmentCount > 0) {
+                    source.setParseStatus(1);
+                    source.setErrmsg("");
+                } else {
+                    source.setParseStatus(4);
+                    source.setErrmsg("未解析到段落，请检查\"解析设置\"的段落正规式。");
+                }
             } else {
                 source.setParseStatus(4);
                 source.setErrmsg(gson.toJson(errMap));
@@ -202,7 +207,6 @@ public class SourceService implements Runnable {
     }
 
     private int parseHtml(Source source, Regular reg, Pattern paraPattern, Expression[] exps, String entryFileName, byte[] data) {
-        int fragmentCount = 0;
         String hex = DigestUtils.sha256Hex(data);
         Html html = htmlMapper.getHtmlByCheckCode(hex);
         if (html == null) {//未处理过的，才需要解析导入
@@ -214,9 +218,9 @@ public class SourceService implements Runnable {
             html.setCheckCode(hex);
             htmlMapper.insertHtml(html);
 
-            fragmentCount = parseParagraph(source, reg, paraPattern, exps, html, data);
+            return parseParagraph(source, reg, paraPattern, exps, html, data);
         }
-        return fragmentCount;
+        return 0;
     }
 
     private void mapAddElement(Map<String, Object> map, String patternName, String link) {
@@ -231,7 +235,7 @@ public class SourceService implements Runnable {
             strings.add(link);
             map.put(patternName, strings);
         } else if (a instanceof List) {
-            ArrayList strings = (ArrayList) a;
+            ArrayList<String> strings = (ArrayList) a;
             strings.add(link);
             map.put(patternName, strings);
         }
@@ -292,7 +296,7 @@ public class SourceService implements Runnable {
             logger.info(html.getFilename() + " parse Time=" + parseAndRedisTime);
 
             html.setFragmentCount(fragmentCount);
-            html.setParseStatus(1);
+            html.setParseStatus(fragmentCount > 0 ? 1 : 4);
             htmlMapper.updateHtml(html);
         } catch (Exception e) {
             e.printStackTrace();
@@ -330,16 +334,11 @@ public class SourceService implements Runnable {
 
                 documents.add(doc);
             }
-            logger.info("size:"+documents.size());
-            try {
-                if(documents.size()>0)
+            //logger.info("size:" + documents.size());
+            if (documents.size() > 0) {
                 httpSolrClient.add(documents);
-            } catch (SolrServerException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                ur = httpSolrClient.commit();
             }
-            ur = httpSolrClient.commit();
             //redisUtil.del(keys);//清空redis！
             logger.info("创建索引库完成，耗时：" + (System.currentTimeMillis() - startSecond) / 1000 + "秒");
         } catch (SolrServerException | IOException e) {
@@ -427,33 +426,53 @@ public class SourceService implements Runnable {
     }
 
     //<a href="https://t.me/(?:\w{5,100}?)">(?<telegram>(?:@|(https://t.me/))\w{5,100}?)</a>
-    /*public static void main(String[] args) {
-        String text = "\"\n" +
-                "出售各种账号QQ号 微信号 支付宝号 抖音号 陌陌号 各种账号<br> <br>国内外数据号 62  a16都有货   零售 批发 微信号实名绑卡 <br>微信号实名绑卡 <br>国外注册微信号 <br>国内注册微信号 <br>" +
-                "<br>《微信云控专用数据号批发》 <br>国内私人号1----5年号 <br>国外老号>>1----5年号 <br>云控专用号<br>印度 泰国 菲律宾 马来 越南 非洲 中东 印尼各种国家<br><<<微信，支付宝，陌陌，QQ，抖音，等等>>> " +
-                "<br><br>{[四件套 四件套 四件套]}   {[四件套 四件套 四件套]} <br> <br>出售各种精准粉 <br>关于微信的其他叶务全部接单 <br>量大的老板随时联系，寻找长期合作商 <br><br>" +
-                "网站建设，SEO排名优化最快3天上首 <br>引流出粉、假粉包赔，交友，相亲，兼职，网赚均有量  <br>引流出粉、假粉包赔，交友，相亲，兼职，网赚均有量  <br><br><<<微信，支付宝，陌陌，QQ，抖音，等等>>>" +
-                " <br><<<微信，支付宝，陌陌，QQ，抖音，等等>>> <br><br>国内外数据号 62  a16都有货   零售 批发 微信号实名绑卡 <br>欢迎各位老板前来咨询 <br><br>飞机：" +
-                "<a href=\"https://t.me/ZY33334\">@ZY33334</a><br>飞机：<a href=\"https://t.me/ZY33333\">https://t.me/ZY33333</a><br>飞机：<a href=\"https://t.me/ZY33333\">https://t.me/ZY33333</a><br>联系方式QQ：<a href=\"tel:2379124606\">2379124606</a>   2379124606<br>蝙蝠：4622149<br>此号自动发广告,如有需要请加以上联系方式。 <br>出售各种账号《QQ号 微信号 支付宝号 抖音号 陌陌号 各种账号.....》 <br>国内外数据号 62  a16都有货   零售 批发 微信号实名绑卡 <br><br>微信号实名绑卡 <br>国外注册微信号 <br>国内注册微信号 <br><br>《微信云控专用数据号批发》 <br>国内私人号1----5年号 <br>国外老号>1----5年号 <br>云控专用号<br>印度 泰国 菲律宾 马来 越南 非洲 中东 印尼各种国家<br><<<微信，支付宝，陌陌，QQ，抖音，等等>>> <br><<<微信，支付宝，陌陌，QQ，抖音，等等>>> <br><br>{[四件套 四件套 四件套]}   {[四件套 四件套 四件套]} <br>出售各种精准粉 <br>关于微信的其他叶务全部接单 <br>量大的老板随时联系，寻找长期合作商 <br><br>网站建设，SEO排名优化最快3天上首 <br>引流出粉、假粉包赔，交友，相亲，兼职，网赚均有量  <br>引流出粉、假粉包赔，交友，相亲，兼职，网赚均有量 <br><br><<<微信，支付宝，陌陌，QQ，抖音，等等>>> <br><<<微信，支付宝，陌陌，QQ，抖音，等等>>>  <br><br>欢迎各位老板前来咨询 <br>飞机：<a href=\"https://t.me/ZY33333\">https://t.me/ZY33333</a><br>飞机：<a href=\"https://t.me/ZY33333\">https://t.me/ZY33333</a><br>飞机：<a href=\"https://t.me/ZY33333\">https://t.me/ZY33333</a><br>蝙蝠：4622149<br>联系方式QQ：<a href=\"tel:2379124606\">2379124606</a>   2379124606<br>此号自动发广告,如有需要请加以上联系方式。 <br>诚信是我价值不菲的鞋子，踏遍千山万水，质量也应永恒不变...\n" +
-                "        \"\n";
-        System.out.println(text);
+    public static void main(String[] args) {
+        String text =/* "<div class=\"message default clearfix\" id=\"message75753\">\n" +
+                "    <div class=\"pull_left userpic_wrap\">\n" +
+                "        <div class=\"userpic userpic6\" style=\"width: 42px; height: 42px\">\n" +
+                "            <div class=\"initials\" style=\"line-height: 42px\">TS</div>\n" +
+                "        </div>\n" +
+                "    </div>\n" +*/
+                "    <div class=\"body\">\n" +
+                        "        <div class=\"pull_right date details\" title=\"03.04.2022 01:06:36\">01:06</div>\n" +
+                        "        <div class=\"from_name\">T Setsuna</div>\n" +
+                        "        <div class=\"text\">反正到手了，过程虽麻烦，也爽到了，就行了</div>\n" +
+                        "    </div>\n" +
+                        "</div>";
+        String text1 = "  <div class=\"body\">\n\n       <div class=\"pull_right date details\" title=\"15.06.2022 05:53:13 UTC+08:00\">\n05:53\n" +
+                "       </div>\n" +
+                "\n" +
+                "       <div class=\"from_name\">\n" +
+                "Deleted Account\n" +
+                "       </div>\n" +
+                "\n" +
+                "       <div class=\"text\">\n" +
+                "安哥中介，卖内部信息找我，收货管道稳定<br>飞机： <a href=\"https://t.me/star426\">@star426</a><br>V号：Alisa-wx-CHWM<br>-----<br>蝙蝠 海鸥：<br>安久网贷，缺钱找我<br>蝙蝠号12878876<br>海鸥号363351<br>!!!!!!!!!!<br>!!!!!!!!!!<br>大众传媒发广告  飞机 <a href=\"https://t.me/aa779700\">@aa779700</a>\n" +
+                "       </div>\n" +
+                "\n" +
+                "      </div>\n" +
+                "\n" +
+                "     </div>";
+        //System.out.println(text);
 
-        Pattern pattern = Pattern.compile("<a href=\"https://t.me/(?<telegram>\\w{5,100}?)\">(?:@|https://t.me/)\\k<telegram></a>", Pattern.CASE_INSENSITIVE);//无<a href
+        Pattern pattern = Pattern.compile("<div class=\"pull_right date details\" title=\"(?<day>\\d{2})\\.(?<month>\\d{2})\\.(?<year>\\d{4}) (?<time>\\d{2}:\\d{2}:\\d{2})(?: UTC\\+08:00)?\">[\\s\\S]+?<div class=\"from_name\">\\s*(?<publisher>[ \\S]+?)\\s*</div>[\\s\\S]+?<div class=\"text\">(?<paragraph>[\\s\\S]{1,8191}?)</div>", Pattern.CASE_INSENSITIVE);//无<a href
 
         Matcher m = pattern.matcher(text);
         int matchCount = 0;
         while (m.find()) {
             System.out.println("m.groupCount() = " + m.groupCount() + " ----------++++----------------------------------------");
 
-            //int count = m.groupCount();
-            System.out.println("telegram=" + m.group("telegram"));
-            System.out.println("group(0)=" + m.group(0));
+            int count = m.groupCount();
+            System.out.println("time=" + m.group("time"));
+
+            for (int i = 0; i < count; i++)
+                System.out.println("group(" + i + ")=" + m.group(i));
             matchCount++;
         }
         System.out.println("matchCount = " + matchCount);
 
-    }*/
-    public static void main(String[] args) {
+    }
+    /*public static void main(String[] args) {
         String text = "蝙蝠：  10119662\n" +
                 "蝙蝠\uD83E\uDD87  \uD83E\uDD87      7269894\n" +
                 "【蝙蝠</strong>ID<strong>：</strong>4678065<strong>】\n" +
@@ -475,7 +494,7 @@ public class SourceService implements Runnable {
             matchCount++;
         }
         System.out.println("matchCount = " + matchCount);
-    }
+    }*/
 }
 
 

@@ -207,7 +207,7 @@
                                 success: function (response, textStatus) {//todo masking
                                     var result = JSON.parse(response);
                                     if (result.succeed)
-                                        myTable.ajax.reload();
+                                        myTable.ajax.reload(null, false);//null为callback,false是是否回到第一页
                                     else
                                         showDialog("请求结果：" + result.succeed, result.message);
                                 },
@@ -317,7 +317,7 @@
                                 cache: false,
                                 success: function (response, textStatus) {
                                     var result = JSON.parse(response);
-                                    myTable.ajax.reload();
+                                    myTable.ajax.reload(null, false);//null为callback,false是是否回到第一页
                                     showDialog("请求结果：" + result.succeed, result.message);
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
@@ -378,7 +378,7 @@
                                         success: function (response, textStatus) {
                                             var result = JSON.parse(response);
                                             showDialog("请求结果：" + result.succeed, result.message);
-                                            myTable.ajax.reload();
+                                            myTable.ajax.reload(null, false);//null为callback,false是是否回到第一页
                                         },
                                         error: function (response, textStatus) {/*能够接收404,500等错误*/
                                             showDialog("请求状态码：" + response.status, response.responseText);
@@ -433,7 +433,7 @@
                             myTable.ajax.reload();
                         } */
                         showDialog("请求结果：" + result.succeed, result.message);
-                        myTable.ajax.reload();
+                        myTable.ajax.reload(null, false);//null为callback,false是是否回到第一页
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
                         showDialog("请求状态码：" + response.status, response.responseText);
