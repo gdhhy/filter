@@ -3,14 +3,12 @@ package com.xz.security.auth;
 
 import com.xz.security.dao.UserMapper;
 import com.xz.security.pojo.User;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,9 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 
-@Service("customUserDetailsService")
+//@Service("customUserDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
-    Logger logger = Logger.getLogger(CustomUserDetailsService.class);
 
     @Autowired
     private UserMapper userMapper;
@@ -61,7 +58,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         }*/
       /*  authorities.add(new SimpleGrantedAuthority("ADMIN"));
         authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));*/
-        logger.debug("authorities :" + authorities);
+        System.out.println("authorities :" + authorities);
         return authorities;
     }
 

@@ -93,10 +93,10 @@ public class SourceService implements Runnable {
         }
         //if (true) return null;
 
-        File saveFile = new File(deployDir + source.getServerPath() + File.separator + source.getServerFilename());
-        ArchiveEntry archiveEntry;
-        Map<String, Integer> errMap = new HashMap<>();
         try {
+            File saveFile = new File(deployDir + source.getServerPath() + File.separator + source.getServerFilename());
+            ArchiveEntry archiveEntry;
+            Map<String, Integer> errMap = new HashMap<>();
             if (source.getFilename().endsWith(".zip")) {
                 InputStream is = new FileInputStream(saveFile);
                 ZipArchiveInputStream zais = new ZipArchiveInputStream(is, "GBK");

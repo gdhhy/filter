@@ -60,6 +60,7 @@ public class User implements Serializable, Comparable, UserDetails {
 
     private Integer failureLogin;
     private Integer succeedLogin;
+    private String captcha;//登录机器验证
 
 
     public Integer getUserID() {
@@ -288,4 +289,11 @@ public class User implements Serializable, Comparable, UserDetails {
         return userID <= 100;
     }
 
+    public String getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(String captcha) {
+        this.captcha = captcha;
+    }
 }

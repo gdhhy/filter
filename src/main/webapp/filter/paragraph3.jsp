@@ -77,10 +77,10 @@
                     {"orderable": false, className: 'text-center', "targets": 1, title: '来源', width: 200},
                     {
                         "orderable": false, className: 'text-center', "targets": 2, title: '段落', render: function (data, type, row, meta) {
-                            if (data.length > 80) {
-                                return "<a title='" + data.replace(/<br>/g, "\n") + "' href='#' style='text-decoration: none;'>" + data.replace(/[\r\n<br>]/g, "").substring(0, 78) + "…" + "</a>";
+                            if (data[0].length > 80) {
+                                return "<a title='" + data[0].replace(/<br>/g, "\n") + "' href='#' style='text-decoration: none;'>" + data[0].replace(/[\r\n<br>]/g, "").substring(0, 78) + "…" + "</a>";
                             } else {
-                                return data.replace(/[\r\n<br>]/g, "");
+                                return data[0].replace(/[\r\n<br>]/g, "");
                             }
                         }
                     },
@@ -89,7 +89,7 @@
                     {"orderable": false, className: 'text-center', "targets": 5, title: '次数', width: 50},
                     {
                         "orderable": false, 'targets': 6, 'searchable': false, title: '提取结果', render: function (data, type, row, meta) {
-                            var jsonObject = $.parseJSON(data);
+                            var jsonObject = $.parseJSON(data);//todo
                             var text = "";
                             jQuery.each(jsonObject, function (key, val) {
                                 text += '{0}:<a href="#"  class="research"  data-item="{1}" data-value="{2}">{3}</a><br/>'.format(key, key, val, val);

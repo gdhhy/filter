@@ -141,6 +141,7 @@ public class FileUploadController {
                 } else {
                     resultMap.put("success", false);
                     resultMap.put("error", "文件曾被上传，上传时间：" + DateUtil.format(sources.get(0).getUploadTime(), "yyyy-MM-dd HH:mm"));
+                    saveFile.delete();
                 }
 
             } catch (IOException e) {

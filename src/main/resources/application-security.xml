@@ -1,5 +1,6 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:sec="http://www.springframework.org/schema/security"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
     http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
@@ -28,15 +29,30 @@
                     login-processing-url="/login"
                     authentication-success-handler-ref="savedRequestAware"
                     authentication-failure-url="/loginPage.jspa?error"/>
+        <!--  authentication-details-source-ref="captchaDetailsSource"-->
         <csrf disabled="true"/>
+        <sec:logout delete-cookies="JSESSIONID" />
 
-        <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me"
+      <!--  <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me" authentication-success-handler-ref="loginSuccessHandler"
                      token-repository-ref="jdbcTokenRepository"
-                     token-validity-seconds="86400"/>
+                     token-validity-seconds="86400"/>-->
     </http>
+    <beans:bean id="loginSuccessHandler" class="com.xz.security.controller.LoginSuccessHandler" />
+    <!--<beans:bean id="captchaDetailsSource" class="com.xz.security.captcha.CaptchaAuthenticationDetailsSource" />
+    <sec:authentication-manager>
+        <sec:authentication-provider ref="authenticationProvider"/>
+    </sec:authentication-manager>
 
+    <beans:bean id="authenticationProvider" class="com.xz.security.captcha.CaptchaDaoAuthenticationProvider">
+        <beans:property name="userDetailsService" ref="customUserDetailsService"/>
+      &lt;!&ndash;  <beans:property name="passwordEncoder">
+            <bean class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder"/>
+        </beans:property>&ndash;&gt;
+    </beans:bean>-->
     <beans:bean id="customUserDetailsService" class="com.xz.security.auth.CustomUserDetailsService"/>
-
+    <sec:user-service id="userDetailService">
+        <sec:user name="bob" password="secret" authorities="SOME_ROLE" />
+    </sec:user-service>
     <beans:bean id="securityProvider" class="com.xz.security.auth.SecurityProvider"/>
     <authentication-manager>
         <authentication-provider ref="securityProvider"/>
@@ -55,5 +71,6 @@
         <beans:constructor-arg name="loginFormUrl" value="/login"/>
         <beans:property name="useForward" value="true"/>
     </beans:bean>-->
+    <beans:bean class="com.xz.security.controller.AuthenticationResultListener"/>
 
 </beans:beans>

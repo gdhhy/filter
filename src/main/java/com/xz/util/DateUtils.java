@@ -7,7 +7,6 @@
 package com.xz.util;
 
 import com.xz.ExceptionAdapter;
-import org.apache.log4j.Logger;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -24,7 +23,6 @@ import java.util.Calendar;
  *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class DateUtils {
-    static Logger logger = Logger.getLogger(DateUtils.class);
 
     /**
      * 把日期字符串转换成日期
@@ -1285,7 +1283,6 @@ public class DateUtils {
                 cal.add(Calendar.DATE, 1);
                 return sqlDateFormat.format(cal.getTime());
             } catch (Exception e) {
-                logger.debug("sqlDate:" + sqlDate);
                 e.printStackTrace();
             }
         return "";

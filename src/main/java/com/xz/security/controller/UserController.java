@@ -6,7 +6,8 @@ import com.xz.security.dao.UserMapper;
 import com.xz.security.pojo.User;
 import com.xz.util.Hmac;
 import com.xz.util.Ognl;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ import java.util.Properties;
 public class UserController {
     private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
-    Logger logger = Logger.getLogger(UserController.class);
+    Logger logger = LogManager.getLogger(UserController.class);
     @Autowired
     private UserMapper userMapper;
 
