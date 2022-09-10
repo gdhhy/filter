@@ -49,7 +49,7 @@ dependencies {
     compile(
             'net.sf.jasperreports:jasperreports:6.7.0',
 
-            'org.mybatis:mybatis:3.4.6',  'log4j:log4j:1.2.17',
+            'org.mybatis:mybatis:3.4.6', 'log4j:log4j:1.2.17',
             'jstl:jstl:1.2', 'javax.servlet:javax.servlet-api:3.1.0',
             "org.springframework.security:spring-security-web:$springSecurityVersion",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
@@ -108,15 +108,21 @@ task copyJars(type: Copy) {
     from configurations.runtime
     into 'lib' // 目标位置
 }
+task copyJarToDeploy(type: Copy) {
+    dependsOn  ':jarWithoutResources'
+    from  "$buildDir/libs/filter_xz-1.0-SNAPSHOT.jar"
+    into "$buildDir/libs/exploded/filter_xz-1.0-SNAPSHOT.war/WEB-INF/lib" // 目标位置
+}
 task jarWithoutResources(type: Jar) {
     baseName project.name
-    from("$buildDir/classes/main")
+    from("$buildDir/classes/java/main")
 }
 task showProjectProperties() {
     println "-------------------------"
     println "${processResources.destinationDir}"
     println projectDir
     println rootProject
+    println buildDir
     println rootProject.rootDir
     //println "$rootProject.rootDir/webadmin/src/main/webapp"
     println "-------------------------"
