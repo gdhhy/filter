@@ -9,6 +9,8 @@ import com.xz.filter.pojo.Expression;
 import com.xz.filter.pojo.Source;
 import com.xz.util.Ognl;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -20,8 +22,6 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,7 +47,7 @@ public class ExcelController {
     private ExpressionMapper expressionMapper;
     /*@Resource
     private Properties configs;*/
-    private static Logger log = LoggerFactory.getLogger(ExcelController.class);
+    private static Logger log = LogManager.getLogger(ExcelController.class);
 
     /*@RequestMapping(value = "listParagraph", method = RequestMethod.GET)
     public void listParagraph(HttpServletResponse response,

@@ -27,37 +27,50 @@
                     username-parameter="loginName"
                     password-parameter="password"
                     login-processing-url="/login"
+                    authentication-details-source-ref="captchaDetailsSource"
                     authentication-success-handler-ref="savedRequestAware"
                     authentication-failure-url="/loginPage.jspa?error"/>
-        <!--  authentication-details-source-ref="captchaDetailsSource"-->
-        <csrf disabled="true"/>
-        <sec:logout delete-cookies="JSESSIONID" />
+        <!--authentication-failure-handler-ref=""-->
 
-      <!--  <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me" authentication-success-handler-ref="loginSuccessHandler"
+        <csrf disabled="true"/>
+        <logout delete-cookies="JSESSIONID"/>
+
+        <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me"
                      token-repository-ref="jdbcTokenRepository"
-                     token-validity-seconds="86400"/>-->
+                     token-validity-seconds="86400"/>
     </http>
-    <beans:bean id="loginSuccessHandler" class="com.xz.security.controller.LoginSuccessHandler" />
-    <!--<beans:bean id="captchaDetailsSource" class="com.xz.security.captcha.CaptchaAuthenticationDetailsSource" />
-    <sec:authentication-manager>
-        <sec:authentication-provider ref="authenticationProvider"/>
-    </sec:authentication-manager>
+   <!-- <sec:http use-expressions="true">
+        <sec:intercept-url pattern="/secure" access="isAuthenticated()" />
+        <sec:intercept-url pattern="/**" access="permitAll" />
+        <sec:form-login
+                login-page="/loginPage.jspa"
+                default-target-url="/"
+                username-parameter="loginName"
+                password-parameter="password"
+                authentication-failure-url="/loginPage.jspa?error"
+                authentication-details-source-ref="captchaDetailsSource" />
+        <sec:logout delete-cookies="JSESSIONID" />
+    </sec:http>-->
+    <!--<beans:bean id="loginSuccessHandler" class="com.xz.security.controller.LoginSuccessHandler"/>-->
+    <beans:bean id="captchaDetailsSource" class="com.xz.security.captcha.CaptchaAuthenticationDetailsSource"/>
+    <authentication-manager>
+        <authentication-provider ref="authenticationProvider"/>
+    </authentication-manager>
 
     <beans:bean id="authenticationProvider" class="com.xz.security.captcha.CaptchaDaoAuthenticationProvider">
         <beans:property name="userDetailsService" ref="customUserDetailsService"/>
-      &lt;!&ndash;  <beans:property name="passwordEncoder">
-            <bean class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder"/>
-        </beans:property>&ndash;&gt;
-    </beans:bean>-->
+
+       <!-- <beans:property name="passwordEncoder">
+            <beans:bean class="org.springframework.security.authentication.encoding.PlaintextPasswordEncoder"/>
+        </beans:property>-->
+    </beans:bean>
     <beans:bean id="customUserDetailsService" class="com.xz.security.auth.CustomUserDetailsService"/>
-    <sec:user-service id="userDetailService">
-        <sec:user name="bob" password="secret" authorities="SOME_ROLE" />
-    </sec:user-service>
-    <beans:bean id="securityProvider" class="com.xz.security.auth.SecurityProvider"/>
-    <authentication-manager>
-        <authentication-provider ref="securityProvider"/>
-    </authentication-manager>
-    <beans:bean id="savedRequestAware" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler ">
+
+    <!-- <beans:bean id="securityProvider" class="com.xz.security.auth.SecurityProvider"/>
+     <authentication-manager>
+         <authentication-provider ref="securityProvider"/>
+     </authentication-manager>-->
+    <beans:bean id="savedRequestAware" class="com.xz.security.controller.LoginSuccessHandler ">
         <beans:property name="defaultTargetUrl" value="/index.jspa"/>
         <beans:property name="useReferer" value="true"/>
     </beans:bean>

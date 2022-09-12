@@ -2,7 +2,6 @@ package com.xz.security.pojo;
 
 
 import com.google.gson.JsonElement;
-import net.sf.json.JSONObject;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +34,7 @@ import java.util.List;
  *
  * @author 黄海晏
  */
-public class User implements Serializable, Comparable, UserDetails {
+public class User implements Serializable, UserDetails {
     private static final long serialVersionUID = 8918676885845937568L;
     //Ibatis 不能设置缺省值，否则updateUserByPrimaryKeySelective会设置成缺省值
     private Integer userID;
@@ -89,8 +88,7 @@ public class User implements Serializable, Comparable, UserDetails {
     }
 
     public boolean isAccountNonExpired() {
-        System.out.println("expiredDate = " + expiredDate);
-        JSONObject s;
+        //System.out.println("User.java 92 expiredDate = " + expiredDate);
         return true;
         //return expiredDate != null;
     }

@@ -2,7 +2,7 @@
 <!-- Solr managed schema - automatically generated - DO NOT EDIT -->
 <schema name="default-config" version="1.6">
   <uniqueKey>id</uniqueKey>
-  <fieldType name="_nest_path_" class="solr.NestPathField" omitTermFreqAndPositions="true" omitNorms="true" maxCharsForDocValues="-1" stored="false"/>
+  <fieldType name="_nest_path_" class="solr.NestPathField" omitTermFreqAndPositions="true" omitNorms="true" maxCharsForDocValues="-1" stored="false" multiValued="false"/>
   <fieldType name="ancestor_path" class="solr.TextField">
     <analyzer type="index">
       <tokenizer class="solr.KeywordTokenizerFactory"/>
@@ -42,7 +42,7 @@
   </fieldType>
   <fieldType name="ignored" class="solr.StrField" indexed="false" stored="false" multiValued="true"/>
   <fieldType name="location" class="solr.LatLonPointSpatialField" docValues="true"/>
-  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" geo="true" maxDistErr="0.001" distErrPct="0.025" distanceUnits="kilometers"/>
+  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" geo="true" omitNorms="true" omitTermFreqAndPositions="true" maxDistErr="0.001" termOffsets="false" distErrPct="0.025" distanceUnits="kilometers" termPositions="false" omitPositions="true"/>
   <fieldType name="lowercase" class="solr.TextField" positionIncrementGap="100">
     <analyzer>
       <tokenizer class="solr.KeywordTokenizerFactory"/>
@@ -104,20 +104,9 @@
       <filter class="solr.CJKBigramFilterFactory"/>
     </analyzer>
   </fieldType>
-  <!-- add by hhy-->
   <fieldType name="text_cn" class="solr.TextField">
-    <analyzer class="org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer" luceneMatchVersion="8.6.2"/>
+    <analyzer class="org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer" luceneMatchVersion="8.11.2"/>
   </fieldType>
-<!-- ChineseAnalyzer quote by line 534 -->
-  <!--fieldType name="text_cn2" class="solr.TextField" positionIncrementGap="100">
-      <analyzer type="index">
-        <tokenizer class="org.apache.lucene.analysis.cn.smart.HMMChineseTokenizerFactory"/>
-      </analyzer>
-      <analyzer type="query">
-        <tokenizer class="org.apache.lucene.analysis.cn.smart.HMMChineseTokenizerFactory"/>
-      </analyzer>
-  </fieldType>-->
-  <!-- add by hhy end -->
   <fieldType name="text_cz" class="solr.TextField" positionIncrementGap="100">
     <analyzer>
       <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -465,11 +454,11 @@
   <field name="_root_" type="string" docValues="false" indexed="true" stored="false"/>
   <field name="_text_" type="text_general" multiValued="true" indexed="true" stored="false"/>
   <field name="_version_" type="plong" indexed="false" stored="false"/>
-  <field name="htmlID_n" type="plongs"/>
+  <field name="body_cn" type="text_general"/>
   <field name="id" type="string" multiValued="false" indexed="true" required="true" stored="true"/>
-  <field name="repeatCount_n" type="plongs"/>
-  <field name="sourceID_n" type="plongs"/> 
-  <field name="warnLevel_n" type="plongs"/>
+  <field name="link_cn" type="text_general"/>
+  <field name="publisher_cn" type="text_general"/>
+  <field name="source_cn" type="text_general"/>
   <dynamicField name="*_txt_en_split_tight" type="text_en_splitting_tight" indexed="true" stored="true"/>
   <dynamicField name="*_descendent_path" type="descendent_path" indexed="true" stored="true"/>
   <dynamicField name="*_ancestor_path" type="ancestor_path" indexed="true" stored="true"/>
@@ -531,7 +520,6 @@
   <dynamicField name="*_ds" type="pdoubles" indexed="true" stored="true"/>
   <dynamicField name="*_dt" type="pdate" indexed="true" stored="true"/>
   <dynamicField name="*_ws" type="text_ws" indexed="true" stored="true"/>
-  <dynamicField name="*_cn" type="text_cn" indexed="true" stored="true"/>
   <dynamicField name="*_i" type="pint" indexed="true" stored="true"/>
   <dynamicField name="*_s" type="string" indexed="true" stored="true"/>
   <dynamicField name="*_l" type="plong" indexed="true" stored="true"/>
@@ -540,5 +528,8 @@
   <dynamicField name="*_f" type="pfloat" indexed="true" stored="true"/>
   <dynamicField name="*_d" type="pdouble" indexed="true" stored="true"/>
   <dynamicField name="*_p" type="location" indexed="true" stored="true"/>
-  <dynamicField name="*ID" type="pint" indexed="true" stored="true"/> 
+  <copyField source="publisher_cn" dest="publisher_cn_str" maxChars="256"/>
+  <copyField source="source_cn" dest="source_cn_str" maxChars="256"/>
+  <copyField source="body_cn" dest="body_cn_str" maxChars="256"/>
+  <copyField source="link_cn" dest="link_cn_str" maxChars="256"/>
 </schema>

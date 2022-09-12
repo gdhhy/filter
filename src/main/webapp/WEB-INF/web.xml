@@ -71,6 +71,7 @@
             <file-size-threshold>0</file-size-threshold>
         </multipart-config>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>dispatcher</servlet-name>
         <url-pattern>*.jspa</url-pattern>
@@ -83,6 +84,10 @@
     <welcome-file-list>
         <welcome-file>loginPage.jspa</welcome-file>
     </welcome-file-list>
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+
     <!-- <error-page>
          <error-code>404</error-code>
          <location>/common/404.htm</location>

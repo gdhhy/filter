@@ -15,13 +15,15 @@
     -->
 
     <bean id="httpSolrClient" class="org.apache.solr.client.solrj.impl.HttpSolrClient">
-        <!--<constructor-arg index="0" value="http://172.17.0.3:8983/solr/filter"/>-->
-        <constructor-arg index="0" value="http://192.168.6.100:58983/solr/filter"/>
+        <!--su solr
+        cd /opt/solr/bin/
+        ./solr start -p 58984  -->
+        <constructor-arg index="0" value="http://192.168.6.60:58984/solr/filter"/>
     </bean>
     <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <!--<property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>-->
-        <property name="url" value="jdbc:mysql://192.168.6.100:3307/filter?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=GMT%2B8"/>
+        <property name="url" value="jdbc:mysql://192.168.6.100:3307/filter?useSSL=false&amp;characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=GMT%2B8"/>
         <!--<property name="url" value="jdbc:mysql://172.17.0.2:3306/filter?characterEncoding=utf8&amp;zeroDateTimeBehavior=convertToNull&amp;serverTimezone=GMT%2B8"/>-->
         <property name="password" value="Huang3102,"/>
         <property name="username" value="root"/>
@@ -93,7 +95,7 @@
     </bean>-->
 
     <context:annotation-config/>
-    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+    <!--<bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="messageConverters">
             <list>
                 <ref bean="mappingJacksonHttpMessageConverter"/>
@@ -106,22 +108,7 @@
                 <value>text/html;charset=UTF-8</value>
             </list>
         </property>
-    </bean>
-    <!--  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 过时了
-          <property name="messageConverters">
-              <list>
-                  <ref bean="jsonHttpMessageConverter"/>
-              </list>
-          </property>
-      </bean>
-
-      <bean id="jsonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-          <property name="supportedMediaTypes">
-              <list>
-                  <value>application/json;charset=UTF-8</value>
-              </list>
-          </property>
-      </bean>-->
+    </bean>-->
 
     <bean id="dictMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>

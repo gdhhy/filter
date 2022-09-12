@@ -3,22 +3,19 @@ package com.xz.filter;
 
 import com.xz.filter.dao.SourceMapper;
 import com.xz.filter.pojo.Source;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrInputDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 @Deprecated
 @Service
 public class SolrIndex implements Runnable {
-    private static Logger log = LoggerFactory.getLogger(SolrIndex.class);
+    private static Logger log = LogManager.getLogger(SolrIndex.class);
     private HttpSolrClient httpSolrClient;
     private SourceMapper sourceMapper;
    // private ParagraphMapper paragraphMapper;

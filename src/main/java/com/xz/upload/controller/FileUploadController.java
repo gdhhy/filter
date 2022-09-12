@@ -12,16 +12,15 @@ import com.xz.filter.dao.SourceMapper;
 import com.xz.filter.pojo.Source;
 import com.xz.rbac.web.DeployRunning;
 import com.xz.upload.pojo.FileBucket;
-import com.xz.util.StringUtils;
+import de.innosystec.unrar.Archive;
 import de.innosystec.unrar.NativeStorage;
+import de.innosystec.unrar.rarfile.FileHeader;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import de.innosystec.unrar.Archive;
-import de.innosystec.unrar.rarfile.FileHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,7 +45,7 @@ import java.util.*;
 @Controller
 @RequestMapping("/upload")
 public class FileUploadController {
-    private static Logger logger = LoggerFactory.getLogger(FileUploadController.class);
+    private static Logger logger = LogManager.getLogger(FileUploadController.class);
     @Autowired
     private SourceMapper sourceMapper;
    /* @Autowired

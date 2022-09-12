@@ -17,12 +17,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrInputDocument;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -34,21 +35,20 @@ import java.util.regex.Pattern;
 
 @Service
 public class SourceService implements Runnable {
-    private Logger logger = LoggerFactory.getLogger(SourceService.class);
-    private static String deployDir = DeployRunning.getDir();
-    private HtmlMapper htmlMapper;
-    private ExpressionMapper expressionMapper;
-    private RegularMapper regularMapper;
-    private SourceMapper sourceMapper;
+    private final Logger logger = LogManager.getLogger(SourceService.class);
+    private final static String deployDir = DeployRunning.getDir();
+    private final HtmlMapper htmlMapper;
+    private final ExpressionMapper expressionMapper;
+    private final RegularMapper regularMapper;
+    private final SourceMapper sourceMapper;
     private Source source;
-    private SolrClient httpSolrClient;
+    private final SolrClient httpSolrClient;
 
     // private RedisUtil redisUtil;
 
-    private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").serializeNulls().create();
-    private JsonParser jsonParser = new JsonParser();
-    private TreeSet<String> keys = new TreeSet<>();
-    private HashMap<String, Paragraph> keyPara = new HashMap<>();
+    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").serializeNulls().create();
+    private final JsonParser jsonParser = new JsonParser();
+    private final HashMap<String, Paragraph> keyPara = new HashMap<>();
 
     public SourceService(HtmlMapper htmlMapper, RegularMapper regularMapper, ExpressionMapper expressionMapper,
                          SourceMapper sourceMapper, SolrClient httpSolrClient) {

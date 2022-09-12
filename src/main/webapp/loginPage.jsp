@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!-- basic styles -->
 
-    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <%--<!--[if IE 7]>
@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="assets/fonts/font.css?family=Open+Sans:400,300"/>
 
     <!-- ace styles -->
-    <link rel="stylesheet" href="assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
+    <link rel="stylesheet" href="assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style"/>
     <%--<link rel="stylesheet" href="http://ace.jeka.by/assets/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />--%>
     <%--<link rel="stylesheet" href="assets/css/ace-rtl.min.css"/>--%>
 
@@ -78,13 +78,13 @@
                         <div id="login-box" class="login-box visible widget-box no-border">
                             <div class="widget-body">
                                 <div class="widget-main">
-                                    <c:if test="${param.error == null}">
+                                    <c:if test="${param.error == null or errMsg==''}">
                                         <h4 class="header blue lighter bigger">
-                                            <i class="icon-coffee green"></i>
+                                            <i class="ace-icon fa fa-coffee green"></i>
                                             请输入您的用户信息
                                         </h4>
                                     </c:if>
-                                    <c:if test="${param.error != null}">
+                                    <c:if test="${param.error != null }">
                                         <h4 class="header red lighter bigger">
                                             <i class="icon-coffee red"></i>
                                                 ${errMsg}
@@ -97,16 +97,24 @@
                                             <label class="block clearfix">
 														<span class="block input-icon input-icon-right">
 															<input type="text" class="form-control" placeholder="用户名" id="username" name="loginName"/>
-															<i class="icon-user"></i>
+                                                            <i class="ace-icon fa fa-user"></i>
 														</span>
                                             </label>
 
                                             <label class="block clearfix">
 														<span class="block input-icon input-icon-right">
 															<input type="password" class="form-control" id="password" name="password" placeholder="密码"/>
-															<i class="icon-lock"></i>
+														    <i class="ace-icon fa fa-lock"></i>
 														</span>
                                             </label>
+                                            <c:if test="${not empty captchaEnc}">
+                                                <label class="block clearfix">
+														<span class="block input-icon input-icon-right">
+															<input type="text" class="form-control" id="j_captcha" name="j_captcha" placeholder="验证码"/>
+														   <img src="data:image/png;base64,${captchaEnc}"/></br>
+														</span>
+                                                </label>
+                                            </c:if>
 
                                             <div class="space"></div>
 

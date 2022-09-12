@@ -23,8 +23,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -69,8 +69,8 @@ public class FilterController implements InitializingBean {
     //private static String deployDir = DeployRunning.getDir();
     /*@Resource
     private Properties configs;*/
-    private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").serializeNulls().create();
-    private static Logger log = LoggerFactory.getLogger(FilterController.class);
+    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").serializeNulls().create();
+    private final static Logger log = LogManager.getLogger(FilterController.class);
 
     @Override
     public void afterPropertiesSet() {

@@ -8,10 +8,8 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -54,11 +52,11 @@ public class SecurityProvider implements AuthenticationProvider {
         }
         //todo 用户锁定、登录IP 限制等等
 
-        user.setFailureLogin(0);
+        /*user.setFailureLogin(0);
         user.setSucceedLogin(user.getSucceedLogin() + 1);
         user.setLastLoginTime(new Date());
         user.setLastLoginIP(((WebAuthenticationDetails) authentication.getDetails()).getRemoteAddress());
-        userMapper.loginUpdateUser(user);
+        userMapper.loginUpdateUser(user);*/
 
         return new UsernamePasswordAuthenticationToken(user, authentication.getCredentials(), user.getAuthorities());
     }
